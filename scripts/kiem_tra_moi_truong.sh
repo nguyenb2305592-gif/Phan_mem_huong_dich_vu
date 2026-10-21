@@ -19,4 +19,7 @@ check "Git"            git --version
 jv=$(java -version 2>&1 | head -1 | sed -E 's/.*"([0-9]+).*/\1/')
 if [ "${jv:-0}" -lt 21 ]; then echo "  [LỖI] Cần JDK 21 trở lên (đang là $jv)"; ok=1; fi
 # TODO(TH1-1): cảnh báo nếu các cổng 8080 8081 8082 8083 8090 8091 8180 8761 8888 đang bận
+for p in 8080 8081 8082 8083 8090 8091 8180 8761 8888; do
+ if (exec 3<>/dev/tcp/127.0.0.1/$p) 2>/dev/null; then echo " [CẢNH BÁO] cổng $p đang bận"; fi
+done
 exit $ok
