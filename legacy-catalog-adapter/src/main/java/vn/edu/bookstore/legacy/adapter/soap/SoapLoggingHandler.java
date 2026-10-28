@@ -8,6 +8,11 @@ import javax.xml.namespace.QName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import jakarta.xml.soap.SOAPException;
+
 /**
  * Ghi log toàn bộ thông điệp SOAP gửi/nhận để sinh viên "đọc thông điệp bằng log".
  * Lưu ý vận hành: ở môi trường thật cần che (mask) dữ liệu nhạy cảm trước khi ghi log.
