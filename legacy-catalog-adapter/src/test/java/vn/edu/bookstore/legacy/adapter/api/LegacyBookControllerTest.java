@@ -51,4 +51,44 @@ class LegacyBookControllerTest {
     //   9789999999999 → 404 book-not-found; "12345" → 400 validation-failed;
     //   9790000000000 → 502 upstream-unavailable; tìm kiếm "micro" → 2 kết quả; q="a" → 400.
     //   Thêm lớp kiểm thử riêng cho hệ thống kế thừa chậm (504) và tắt (503).
+@Test
+void sachKhongTonTaiThanh404BookNotFound() throws Exception {
+    mvc.perform(get("/api/v1/legacy/books/9789999999999"))
+            .andExpect(status().isNotFound())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.type").value("https://api.bookstore.vn/problems/book-not-found"))
+            .andExpect(jsonPath("$.legacyCode").value("BOOK_NOT_FOUND"))
+            .andExpect(jsonPath("$.instance").value("/api/v1/legacy/books/9789999999999"));
+}
+
+@Test
+void isbnSaiBiChanTaiAdapter() throws Exception {
+    mvc.perform(get("/api/v1/legacy/books/12345"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.type").value("https://api.bookstore.vn/problems/validation-failed"));
+}
+
+@Test
+void faultServerThanh502UpstreamUnavailable() throws Exception {
+    mvc.perform(get("/api/v1/legacy/books/9790000000000"))
+            .andExpect(status().isBadGateway())
+            .andExpect(jsonPath("$.type").value("https://api.bookstore.vn/problems/upstream-unavailable"))
+            .andExpect(jsonPath("$.legacyCode").value("BACKEND_ERROR"));
+}
+
+@Test
+void timKiemTheoTuKhoa() throws Exception {
+    mvc.perform(get("/api/v1/legacy/books").param("q", "micro"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$[0].isbn").value("9781492034025"));
+}
+
+@Test
+void tuKhoaQuaNganThanh400() throws Exception {
+    mvc.perform(get("/api/v1/legacy/books").param("q", "a"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.type").value("https://api.bookstore.vn/problems/validation-failed"));
+}
+
 }
